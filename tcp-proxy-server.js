@@ -11,11 +11,12 @@
  */
 
 // Load environment variables from .env file
-require('dotenv').config();
+import dotenv from 'dotenv';
+dotenv.config();
 
-const WebSocket = require('ws');
-const net = require('net');
-const url = require('url');
+import WebSocket, { WebSocketServer } from 'ws';
+import net from 'net';
+import url from 'url';
 
 // Configuration from environment variables
 const WS_PORT = process.env.WS_PROXY_PORT || 8080;
@@ -24,7 +25,7 @@ const DEFAULT_TCP_PORT = process.env.TCP_PORT || 30003;
 
 console.log('🚀 Starting TCP-to-WebSocket Proxy Server...');
 
-const wss = new WebSocket.Server({
+const wss = new WebSocketServer({
   port: WS_PORT,
   verifyClient: (info) => {
     console.log(`📡 WebSocket connection attempt from: ${info.origin}`);
