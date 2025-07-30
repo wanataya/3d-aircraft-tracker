@@ -1,0 +1,36 @@
+/* Leaflet Custom Styles for Public Directory */
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+}
+
+/* Fix for marker icons */
+.leaflet-default-icon-path {
+  background-image: url('https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png');
+}
+
+/* Custom map styles */
+#map {
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+/* Aircraft marker styles */
+.aircraft-marker {
+  transform-origin: center;
+  transition: transform 0.3s ease;
+}
+
+.aircraft-marker:hover {
+  transform: scale(1.1);
+}
+
+/* Popup styles */
+.leaflet-popup-content {
+  margin: 8px 12px;
+  line-height: 1.4;
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 4px;
+}

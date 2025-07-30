@@ -1,0 +1,51 @@
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+}
+
+#map {
+  height: 100vh;
+  width: 100vw;
+}
+
+.leaflet-container {
+  background: transparent;
+}
+
+.leaflet-control {
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 5px;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
+}
+
+.leaflet-control a {
+  color: #333;
+}
+
+.leaflet-control a:hover {
+  color: #007bff;
+}
+
+.aircraft-marker {
+  width: 30px;
+  height: 30px;
+  background-color: red;
+  border-radius: 50%;
+  border: 2px solid white;
+  position: relative;
+}
+
+.aircraft-marker::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  background-color: yellow;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}

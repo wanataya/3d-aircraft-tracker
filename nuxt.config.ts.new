@@ -1,0 +1,26 @@
+// https://nuxt.com/docs/api/configuration/nuxt-config
+export default defineNuxtConfig({
+  compatibilityDate: '2025-07-22',
+  app: {
+    head: {
+      title: 'Aircraft Tracker 3D',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'A 3D aircraft tracking system using Leaflet' }
+      ],
+      link: [
+        { rel: 'stylesheet', href: '/css/leaflet-custom.css' }
+      ]
+    }
+  },
+  css: [
+    '@/assets/css/leaflet-custom.css'
+  ],
+  plugins: [
+    { src: '~/plugins/leaflet.client.js', mode: 'client' }
+  ],
+  build: {
+    transpile: ['three', 'leaflet']
+  }
+})
