@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
-dotenv.config();
-
 import WebSocket, { WebSocketServer } from 'ws';
 import net from 'net';
 import url from 'url';
+
+dotenv.config();
 
 /**
  * Enhanced Aircraft Data Proxy Server

@@ -1,8 +1,8 @@
 import dotenv from 'dotenv';
-dotenv.config();
-
 import net from 'net';
 import rhea from 'rhea';
+
+dotenv.config();
 
 /**
  * Simple AMQP Broker Server

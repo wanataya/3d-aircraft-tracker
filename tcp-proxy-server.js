@@ -1,9 +1,9 @@
 import dotenv from 'dotenv';
-dotenv.config();
-
 import WebSocket, { WebSocketServer } from 'ws';
 import url from 'url';
 import rhea from 'rhea';
+
+dotenv.config();
 
 /**
  * AMQP-to-WebSocket Proxy Server
