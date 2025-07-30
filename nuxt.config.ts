@@ -23,24 +23,19 @@ export default defineNuxtConfig({
       meta: [
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-        { name: 'description', content: 'A 3D aircraft tracking system using Leaflet' }
+        { name: 'description', content: 'A 3D aircraft tracking system using Cesium.js' }
       ],
       link: [
-        { rel: 'stylesheet', href: 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.css' },
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
         { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap' }
-      ],
-      script: [
-        { src: 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js' }
       ]
     }
   },
   css: [
-    '@/assets/css/leaflet-custom.css',
     '@/assets/css/main.css'
   ],
   build: {
-    transpile: ['three', 'leaflet']
+    transpile: ['three']
   }
 })

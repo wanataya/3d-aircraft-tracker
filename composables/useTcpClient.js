@@ -35,11 +35,12 @@ export const useTcpClient = () => {
       
       // Check if WebSocket proxy is available
       try {
-        const wsUrl = `ws://${config.websocket.host}:${config.websocket.port}/tcp-proxy?host=${tcpConfig.host}&port=${tcpConfig.port}`
+        const wsUrl = `ws://${config.websocket.host}:${config.websocket.port}/`
+        console.log('🔗 Connecting to WebSocket proxy at:', wsUrl)
         ws = new WebSocket(wsUrl)
         
         ws.onopen = () => {
-          console.log('Connected to TCP proxy')
+          console.log('Connected to enhanced aircraft data proxy')
           isConnected.value = true
           connectionStatus.value = 'connected'
           reconnectAttempts = 0
@@ -47,34 +48,28 @@ export const useTcpClient = () => {
 
         ws.onmessage = (event) => {
           try {
-            console.log('🚨🚨🚨 WEBSOCKET DATA RECEIVED 🚨🚨🚨')
-            console.log('📡 Raw TCP data length:', event.data.length)
-            console.log('📡 First 200 chars:', event.data.substring(0, 200))
-            
-            // Try to parse as JSON first (from TCP proxy)
+            // Try to parse as JSON first (from enhanced proxy)
             try {
               const proxyMessage = JSON.parse(event.data)
               
-              if (proxyMessage.type === 'data') {
-                // Extract the raw SBS-1 message and process it
-                console.log('📨 Received JSON-wrapped TCP data:', proxyMessage.message.substring(0, 50) + '...')
-                handleSBS1Message(proxyMessage.message)
+              if (proxyMessage.type === 'aircraft-data') {
+                // Handle enhanced proxy aircraft data format
+                handleEnhancedAircraftData(proxyMessage.data)
               } else if (proxyMessage.type === 'connection') {
-                console.log('TCP Proxy:', proxyMessage.message)
+                console.log('Enhanced Proxy:', proxyMessage.message)
                 if (proxyMessage.status === 'connected') {
                   isConnected.value = true
                   connectionStatus.value = 'connected'
-                  console.log('✅ Real TCP connection established')
+                  console.log('✅ Real IoT sensor connection established')
                 } else if (proxyMessage.status === 'disconnected') {
                   isConnected.value = false
                   connectionStatus.value = 'disconnected'
                 }
               } else if (proxyMessage.type === 'error') {
-                console.error('TCP Proxy Error:', proxyMessage.message)
+                console.error('Enhanced Proxy Error:', proxyMessage.message)
                 connectionStatus.value = 'error'
               }
             } catch (_jsonError) {
-              console.log('📨 Data is not JSON, treating as raw SBS-1 messages')
               // Handle raw SBS-1 messages directly
               handleSBS1Message(event.data)
             }
@@ -116,6 +111,49 @@ export const useTcpClient = () => {
   }
 
   // SBS-1 BaseStation message handler
+  // Handle enhanced proxy aircraft data format
+  const handleEnhancedAircraftData = (aircraftData) => {
+    try {
+      
+      // Process aircraft only if they have real callsigns (not just hex ID)
+      if (aircraftData.hexIdent && aircraftData.callsign && 
+          aircraftData.callsign.trim() !== '' &&
+          aircraftData.callsign !== aircraftData.hexIdent &&
+          aircraftData.callsign !== 'unknown') {
+        
+        // Convert to format expected by the frontend
+        const processedAircraft = {
+          hexIdent: aircraftData.hexIdent,
+          icao: aircraftData.hexIdent,
+          callsign: aircraftData.callsign,
+          latitude: aircraftData.latitude,
+          longitude: aircraftData.longitude,
+          altitude: aircraftData.altitude,
+          groundSpeed: aircraftData.groundSpeed,
+          track: aircraftData.track,
+          squawk: aircraftData.squawk,
+          verticalRate: aircraftData.verticalRate,
+          timestamp: aircraftData.timestamp,
+          airline: getAirlineFromCallsign(aircraftData.callsign)
+        }
+        
+        updateAircraftData(processedAircraft)
+        messageCount.value++
+        sensorData.lastUpdate = new Date()
+        
+        // Debug: Log final stored aircraft data
+        const storedAircraft = sensorData.aircraft.find(a => a.hexIdent === processedAircraft.hexIdent)
+        if (storedAircraft && messageCount.value % 50 === 0) {
+          console.log(`� Currently tracking ${sensorData.aircraft.length} aircraft`)
+        }
+      } else {
+        console.log(`⏭️ Skipping aircraft ${aircraftData.hexIdent} - No real callsign (has: '${aircraftData.callsign}')`)
+      }
+    } catch (error) {
+      console.error('❌ Error processing enhanced aircraft data:', error)
+    }
+  }
+
   const handleSBS1Message = (rawData) => {
     try {
       // Handle multiple messages that might be concatenated
@@ -134,23 +172,14 @@ export const useTcpClient = () => {
         const parts = rawMessage.split(',')
         
         if (parts[0] === 'MSG' && parts.length >= 10) {
-          console.log(`🚨🚨🚨 PROCESSING SBS-1 MESSAGE 🚨🚨🚨`)
-          console.log(`📋 MSG parts: ${parts.slice(0, 11).join(',')}`)
-          console.log(`📋 HexIdent: ${parts[4]}, Callsign: "${parts[10] || 'NO_CALLSIGN'}", TransType: ${parts[1]}`)
           const aircraftData = parseSBS1Message(parts)
           if (aircraftData) {
-            console.log(`🚨🛩️ AIRCRAFT PARSED SUCCESSFULLY 🚨🛩️`)
-            console.log(`✅ ${aircraftData.hexIdent}, callsign: "${aircraftData.callsign}", airline: "${aircraftData.airline}"`)
             updateAircraftData(aircraftData)
-            // Log aircraft count every 10th message to see progress
-            if (messageCount.value % 10 === 0) {
-              console.log(`🚨📊 MESSAGE ${messageCount.value}: Now tracking ${sensorData.aircraft.length} aircraft 🚨📊`)
+            // Log progress periodically
+            if (messageCount.value % 50 === 0) {
+              console.log(`� Processed ${messageCount.value} messages, tracking ${sensorData.aircraft.length} aircraft`)
             }
-          } else {
-            console.log(`🚨❌ FAILED TO PARSE: ${rawMessage.substring(0, 80)}... 🚨❌`)
           }
-        } else {
-          console.log(`⏭️ Ignoring non-MSG or incomplete message: ${rawMessage.substring(0, 50)}...`)
         }
       })
     } catch (error) {
@@ -215,40 +244,44 @@ export const useTcpClient = () => {
     if (existingIndex >= 0) {
       // Update existing aircraft with new data from any message type
       const existing = sensorData.aircraft[existingIndex]
+      
+      // Only filter out undefined values, keep null values for fields that might be temporarily null
+      const updatedData = {}
+      Object.entries(newData).forEach(([key, value]) => {
+        if (value !== undefined) {
+          updatedData[key] = value
+        }
+      })
+      
       sensorData.aircraft[existingIndex] = {
         ...existing,
-        ...Object.fromEntries(
-          Object.entries(newData).filter(([_key, value]) => value !== null && value !== undefined)
-        ),
+        ...updatedData,
         lastSeen: new Date()
       }
     } else {
-      // STRICT FILTERING: Only add aircraft with REAL callsigns from actual airlines
+      // STRICT FILTERING: Only add aircraft with REAL callsigns (not just hex IDs)
       if (newData.hexIdent && newData.hexIdent.trim() !== '') {
         
-        // Check if we have a real callsign (not null, not "Unknown" and not empty)
+        // Check if we have a real callsign (not null, not empty, and not same as hex ID)
         const hasRealCallsign = newData.callsign && 
-                               newData.callsign !== 'Unknown' && 
-                               newData.callsign !== null &&
-                               newData.callsign.trim() !== ''
+                               newData.callsign.trim() !== '' &&
+                               newData.callsign !== newData.hexIdent &&
+                               newData.callsign !== 'unknown'
         
-        // Get airline from the actual callsign (not hex ID)
-        const airlineFromCallsign = hasRealCallsign ? getAirlineFromCallsign(newData.callsign) : 'Unknown'
-        const hasRealAirline = airlineFromCallsign !== 'Unknown'
-        
-        // ONLY add aircraft that have BOTH real callsign AND real airline
-        if (hasRealCallsign && hasRealAirline) {
+        if (hasRealCallsign) {
+          // Get airline from the actual callsign
+          const airlineFromCallsign = getAirlineFromCallsign(newData.callsign)
+          
           const aircraftToAdd = {
             ...newData,
             callsign: newData.callsign,
-            airline: airlineFromCallsign
+            airline: airlineFromCallsign,
+            lastSeen: new Date()
           }
           
           sensorData.aircraft.push(aircraftToAdd)
-          console.log(`✅ Aircraft added: ${aircraftToAdd.hexIdent} ${aircraftToAdd.callsign} (${aircraftToAdd.airline})`)
         } else {
-          // Skip ALL aircraft without real callsign AND airline
-          console.log(`⏭️ Skipping aircraft: ${newData.hexIdent} - Callsign: '${newData.callsign}', Airline: '${airlineFromCallsign}'`)
+          console.log(`⏭️ Skipping aircraft ${newData.hexIdent} - No real callsign`)
         }
       }
     }

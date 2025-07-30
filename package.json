@@ -2,22 +2,19 @@
   "name": "aircraft-tracker-3d",
   "version": "1.0.0",
   "type": "module",
-  "description": "A 3D aircraft tracking system using Leaflet.",
+  "description": "A 3D aircraft tracking system using Cesium.js and real-time IoT sensor data.",
   "main": "index.js",
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",
     "start": "nuxt start",
-    "proxy": "node tcp-proxy-server.js",
+    "proxy": "node enhanced-proxy.js",
     "dev:full": "concurrently \"npm run proxy\" \"npm run dev\"",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix"
+    "lint": "eslint ."
   },
   "dependencies": {
     "dotenv": "^17.2.1",
-    "leaflet": "^1.7.1",
     "nuxt": "^3.0.0",
-    "oxc-parser": "^0.79.0",
     "three": "^0.132.2",
     "vue": "^3.2.0",
     "ws": "^8.14.0"

@@ -1,6 +1,6 @@
 # aircraft tracker 3d
 
-a real-time aircraft tracking application built with nuxt 3, vue 3, and leaflet. track aircraft on an interactive map with live flight details, supporting both simulation mode and real iot sensor data.
+a real-time aircraft tracking application built with nuxt 3, vue 3, and cesium.js. track aircraft on an interactive 3d globe with live flight details, supporting both simulation mode and real iot sensor data.
 
 ![Aircraft Tracker Demo](https://img.shields.io/badge/Status-Live%20Demo-brightgreen)
 ![Nuxt 3](https://img.shields.io/badge/Nuxt-3.x-00C58E)
@@ -9,7 +9,7 @@ a real-time aircraft tracking application built with nuxt 3, vue 3, and leaflet.
 
 ## features
 
-- interactive map powered by leaflet with real-time aircraft markers
+- interactive 3d globe powered by cesium.js with real-time aircraft visualization
 - live aircraft data with real-time position, altitude, speed, and heading
 - responsive design that works on desktop and mobile
 - auto-updates with live data streaming every 2 seconds
@@ -48,10 +48,10 @@ open [http://localhost:3000](http://localhost:3000) and see simulated aircraft d
    WS_PROXY_HOST=localhost
    ```
 
-3. start the tcp proxy server:
+3. start the enhanced proxy server:
 
    ```bash
-   node tcp-proxy-server.js
+   node enhanced-proxy.js
    ```
 
 4. start the application:
@@ -87,10 +87,10 @@ MSG,3,1,1,8A0001,1,2025/07/23,10:30:00.000,2025/07/23,10:30:00.000,GIA123,35000,
 ## architecture
 
 ```
-┌─────────────────┐    websocket    ┌─────────────────┐    tcp    ┌─────────────────┐
-│   web browser   │ ◄──────────────► │   proxy server  │ ◄────────► │   iot sensor    │
-│  (vue 3 app)    │                 │ (node.js/ws)    │           │ (ads-b/mode s)  │
-└─────────────────┘                 └─────────────────┘           └─────────────────┘
+┌─────────────────┐    websocket   ┌────────────────┐    tcp    ┌────────────────┐
+│   web browser   │ ◄────────────► │  proxy server  │ ◄───────► │   iot sensor   │
+│   (vue 3 app)   │                │  (node.js/ws)  │           │ (ads-b/mode s) │
+└─────────────────┘                └────────────────┘           └────────────────┘
 ```
 
 ## project structure
@@ -158,7 +158,7 @@ this project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## acknowledgments
 
-- leaflet for interactive maps
+- cesium.js for 3d globe visualization
 - nuxt 3 vue.js framework
 - ads-b exchange for aircraft data format reference
 - mode s/ads-b aviation data standards
@@ -186,7 +186,7 @@ made with love using vue 3 and nuxt 3
 
 - nuxt 3
 - vue 3
-- leaflet (for maps)
+- cesium.js (for 3d globe)
 - tailwind css
 
 that's it! simple aircraft tracker that just works.
