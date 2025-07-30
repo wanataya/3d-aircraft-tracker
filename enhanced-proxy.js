@@ -1,3 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+import WebSocket, { WebSocketServer } from 'ws';
+import net from 'net';
+import url from 'url';
+
 /**
  * Enhanced Aircraft Data Proxy Server
  * Direct connection to IoT sensors with AMQP architecture in mind
@@ -12,12 +19,6 @@
  * - TCP_PORT: IoT sensor port (default: 30003)
  */
 
-import dotenv from 'dotenv';
-dotenv.config();
-
-import WebSocket, { WebSocketServer } from 'ws';
-import net from 'net';
-import url from 'url';
 
 // Configuration from environment variables
 const WS_PORT = process.env.WS_PROXY_PORT || 8080;

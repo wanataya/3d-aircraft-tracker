@@ -1,3 +1,9 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+import net from 'net';
+import rhea from 'rhea';
+
 /**
  * Simple AMQP Broker Server
  * A lightweight AMQP-compatible broker for development and testing
@@ -8,11 +14,6 @@
  * Run this with: node amqp-broker.js
  */
 
-import dotenv from 'dotenv';
-dotenv.config();
-
-import net from 'net';
-import rhea from 'rhea';
 
 const BROKER_PORT = process.env.AMQP_BROKER_PORT || 5672;
 

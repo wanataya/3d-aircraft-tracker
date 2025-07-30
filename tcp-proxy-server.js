@@ -1,3 +1,10 @@
+import dotenv from 'dotenv';
+dotenv.config();
+
+import WebSocket, { WebSocketServer } from 'ws';
+import url from 'url';
+import rhea from 'rhea';
+
 /**
  * AMQP-to-WebSocket Proxy Server
  * This server bridges WebSocket connections from browsers to AMQP connections
@@ -13,13 +20,7 @@
  * Run this with: node tcp-proxy-server.js
  */
 
-// Load environment variables from .env file
-import dotenv from 'dotenv';
-dotenv.config();
 
-import WebSocket, { WebSocketServer } from 'ws';
-import url from 'url';
-import rhea from 'rhea';
 
 // Configuration from environment variables
 const WS_PORT = process.env.WS_PROXY_PORT || 8080;
