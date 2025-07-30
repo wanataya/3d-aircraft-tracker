@@ -9,7 +9,8 @@
     "start": "nuxt start",
     "proxy": "node tcp-proxy-server.js",
     "dev:full": "concurrently \"npm run proxy\" \"npm run dev\"",
-    "lint:check": "eslint ."
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "dotenv": "^17.2.1",
@@ -20,6 +21,7 @@
     "ws": "^8.14.0"
   },
   "devDependencies": {
+    "@nuxt/eslint-config": "^0.5.7",
     "@vue/compiler-sfc": "^3.2.0",
     "concurrently": "^7.6.0",
     "eslint": "^9.32.0"

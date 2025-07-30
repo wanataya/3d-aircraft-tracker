@@ -2,8 +2,8 @@
   <div class="map-container">
     <!-- Cesium 3D Globe Container -->
     <div
-      ref="cesiumContainer"
       id="cesium-container"
+      ref="cesiumContainer"
       class="cesium-map"
     >
       <div
@@ -11,7 +11,7 @@
         class="loading-overlay"
       >
         <div class="loading-content">
-          <div class="loading-spinner"></div>
+          <div class="loading-spinner"/>
           <p>Loading 3D Earth...</p>
         </div>
       </div>

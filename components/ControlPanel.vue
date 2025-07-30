@@ -2,21 +2,21 @@
   <div class="control-panel bg-gray-800 p-4 rounded-lg mb-4 flex justify-between items-center">
     <div class="flex space-x-4">
       <button 
-        @click="toggleTracking" 
-        :class="isTracking ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'"
+        :class="isTracking ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'" 
         class="px-4 py-2 rounded text-white font-medium transition-colors"
+        @click="toggleTracking"
       >
         {{ isTracking ? 'Stop Tracking' : 'Start Tracking' }}
       </button>
       <button 
-        @click="addRandomAircraft" 
-        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white font-medium transition-colors"
+        class="px-4 py-2 bg-blue-600 hover:bg-blue-700 rounded text-white font-medium transition-colors" 
+        @click="addRandomAircraft"
       >
         Add Aircraft
       </button>
       <button 
-        @click="clearAllAircraft" 
-        class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white font-medium transition-colors"
+        class="px-4 py-2 bg-yellow-600 hover:bg-yellow-700 rounded text-white font-medium transition-colors" 
+        @click="clearAllAircraft"
       >
         Clear All
       </button>
