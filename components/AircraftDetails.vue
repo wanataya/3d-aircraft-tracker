@@ -107,16 +107,14 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-
-const props = defineProps({
+const _props = defineProps({
   aircraft: {
     type: Object,
     default: null
   }
 })
 
-const emit = defineEmits(['close'])
+const _emit = defineEmits(['close'])
 
 // Helper functions
 const getAirlineName = (callsign) => {

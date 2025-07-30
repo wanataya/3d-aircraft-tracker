@@ -1,6 +1,6 @@
 import { ref } from 'vue';
 
-export function useWebGL(map) {
+export function useWebGL(_map) {
   const glContext = ref(null);
 
   const initializeWebGL = () => {
@@ -21,7 +21,7 @@ export function useWebGL(map) {
     glContext.value.clear(glContext.value.COLOR_BUFFER_BIT);
   };
 
-  const renderModel = (model) => {
+  const renderModel = (_model) => {
     // Logic to render the 3D model on the map using WebGL
     // This will involve loading the model and drawing it in the WebGL context
   };

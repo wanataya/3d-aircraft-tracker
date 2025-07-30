@@ -73,7 +73,7 @@ export const useTcpClient = () => {
                 console.error('TCP Proxy Error:', proxyMessage.message)
                 connectionStatus.value = 'error'
               }
-            } catch (jsonError) {
+            } catch (_jsonError) {
               console.log('📨 Data is not JSON, treating as raw SBS-1 messages')
               // Handle raw SBS-1 messages directly
               handleSBS1Message(event.data)
@@ -218,7 +218,7 @@ export const useTcpClient = () => {
       sensorData.aircraft[existingIndex] = {
         ...existing,
         ...Object.fromEntries(
-          Object.entries(newData).filter(([key, value]) => value !== null && value !== undefined)
+          Object.entries(newData).filter(([_key, value]) => value !== null && value !== undefined)
         ),
         lastSeen: new Date()
       }
@@ -255,7 +255,7 @@ export const useTcpClient = () => {
 
     // Remove stale aircraft (not seen for 15 minutes)
     const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000)
-    const beforeCount = sensorData.aircraft.length
+    const _beforeCount = sensorData.aircraft.length
     sensorData.aircraft = sensorData.aircraft.filter(aircraft => 
       aircraft.lastSeen > fifteenMinutesAgo
     )

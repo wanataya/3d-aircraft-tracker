@@ -1,5 +1,7 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { useTcpClient } from './useTcpClient.js'
+import { toRadians } from '../utils/coordinateUtils.js'
+import { generateRandomAircraft } from '../utils/aircraftGenerator.js'
 
 export const useAircraftTracking = () => {
   const aircraftList = ref([])

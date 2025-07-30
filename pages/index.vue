@@ -80,7 +80,7 @@ const {
   sensorData,
   tcpConfig,
   connect,
-  disconnect
+  disconnect: _disconnect
 } = useTcpClient();
 
 // Throttled aircraft data - updates every 2 seconds to reduce visual spam

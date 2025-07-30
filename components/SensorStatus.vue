@@ -98,7 +98,7 @@ const props = defineProps({
   }
 })
 
-const connectionStatusColor = computed(() => {
+const _connectionStatusColor = computed(() => {
   switch (props.connectionStatus) {
     case 'connected':
       return 'bg-green-500'

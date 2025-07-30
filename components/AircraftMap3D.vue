@@ -32,16 +32,16 @@ const props = defineProps({
 });
 
 // Emits
-const emit = defineEmits(['aircraft-clicked']);
+const _emit = defineEmits(['aircraft-clicked']);
 
 const cesiumContainer = ref(null);
 const mapLoaded = ref(false);
 
 // TCP Client for IoT sensor
 const { 
-  isConnected, 
+  isConnected: _isConnected, 
   connectionStatus, 
-  lastMessage, 
+  lastMessage: _lastMessage, 
   messageCount, 
   sensorData, 
   tcpConfig 

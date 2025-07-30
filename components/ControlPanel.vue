@@ -28,7 +28,6 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
 import { useAircraftTracking } from '../composables/useAircraftTracking'
 
 const { aircraftList, isTracking, lastUpdate, toggleTracking, addRandomAircraft, clearAllAircraft } = useAircraftTracking()

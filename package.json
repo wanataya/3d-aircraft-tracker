@@ -1,6 +1,7 @@
 {
   "name": "aircraft-tracker-3d",
   "version": "1.0.0",
+  "type": "module",
   "description": "A 3D aircraft tracking system using Leaflet.",
   "main": "index.js",
   "scripts": {
