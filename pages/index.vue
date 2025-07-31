@@ -2,21 +2,21 @@
   <div class="aircraft-tracker">
     <!-- Left Aircraft Details Panel -->
     <div v-if="selectedAircraft" class="left-panel">
-      <AircraftDetails 
-        :aircraft="selectedAircraft" 
-        @close="selectedAircraft = null" 
+      <AircraftDetails
+        :aircraft="selectedAircraft"
+        @close="selectedAircraft = null"
       />
     </div>
-    
+
     <!-- Full Screen Map Background -->
     <div class="fullscreen-map">
-      <AircraftMap3D 
-        ref="mapRef" 
-        :aircraft="throttledAircraftData" 
+      <AircraftMap3D
+        ref="mapRef"
+        :aircraft="throttledAircraftData"
         @aircraft-clicked="handleAircraftClick"
       />
     </div>
-    
+
     <!-- Floating Panels Container -->
     <div class="floating-panels">
       <!-- TCP Status Panel -->
@@ -24,11 +24,18 @@
         <div class="panel-header" @click="toggleStatusPanel">
           <div class="header-left">
             <h3 class="panel-title">TCP Connection Status:</h3>
-            <span class="status-badge" :class="getStatusBadgeClass">{{ connectionStatus }}</span>
+            <span class="status-badge" :class="getStatusBadgeClass">{{
+              connectionStatus
+            }}</span>
           </div>
-          <button class="minimize-button">{{ statusMinimized ? '−' : '−' }}</button>
+          <button class="minimize-button">
+            {{ statusMinimized ? "−" : "−" }}
+          </button>
         </div>
-        <div class="panel-content" :class="{ 'minimized': statusMinimized, 'expanded': !statusMinimized }">
+        <div
+          class="panel-content"
+          :class="{ minimized: statusMinimized, expanded: !statusMinimized }"
+        >
           <SensorStatus
             :connection-status="connectionStatus"
             :is-connected="isConnected"
@@ -41,15 +48,23 @@
           />
         </div>
       </div>
-      
+
       <!-- Aircraft Table Panel -->
       <div class="floating-panel">
         <div class="panel-header" @click="toggleTablePanel">
           <h3 class="panel-title">Aircraft Detection ({{ aircraftCount }})</h3>
-          <button class="minimize-button">{{ tableMinimized ? '−' : '−' }}</button>
+          <button class="minimize-button">
+            {{ tableMinimized ? "−" : "−" }}
+          </button>
         </div>
-        <div class="panel-content" :class="{ 'minimized': tableMinimized, 'expanded': !tableMinimized }">
-          <AircraftTable :aircraft="throttledAircraftData" />
+        <div
+          class="panel-content"
+          :class="{ minimized: tableMinimized, expanded: !tableMinimized }"
+        >
+          <AircraftTable
+            :aircraft="throttledAircraftData"
+            :altitude-range="sensorData.altitudeRange"
+          />
         </div>
       </div>
     </div>
@@ -57,12 +72,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted } from "vue";
 import AircraftMap3D from "~/components/AircraftMap3D.vue";
 import SensorStatus from "~/components/SensorStatus.vue";
 import AircraftTable from "~/components/AircraftTable.vue";
 import AircraftDetails from "~/components/AircraftDetails.vue";
-import { useTcpClient } from '~/composables/useTcpClient.js';
+import { useTcpClient } from "~/composables/useTcpClient.js";
 
 const mapRef = ref(null);
 
@@ -72,15 +87,15 @@ const tableMinimized = ref(false);
 const selectedAircraft = ref(null);
 
 // TCP Client integration
-const { 
-  isConnected, 
-  connectionStatus, 
-  lastMessage, 
-  messageCount, 
+const {
+  isConnected,
+  connectionStatus,
+  lastMessage,
+  messageCount,
   sensorData,
   tcpConfig,
   connect,
-  disconnect: _disconnect
+  disconnect: _disconnect,
 } = useTcpClient();
 
 // Throttled aircraft data - updates every 2 seconds to reduce visual spam
@@ -90,7 +105,8 @@ let lastUpdateTime = 0;
 // Watch for aircraft data changes and throttle updates
 const updateThrottledData = () => {
   const now = Date.now();
-  if (now - lastUpdateTime > 2000) { // 2 second throttle
+  if (now - lastUpdateTime > 2000) {
+    // 2 second throttle
     throttledAircraftData.value = [...sensorData.aircraft];
     lastUpdateTime = now;
   }
@@ -105,46 +121,52 @@ onMounted(() => {
 
 // Computed properties for status panel
 const aircraftCount = computed(() => sensorData.aircraft?.length || 0);
-const dataSource = computed(() => isConnected.value ? 'sensor' : 'simulated');
-const lastUpdate = computed(() => sensorData.lastUpdate ? new Date(sensorData.lastUpdate).toLocaleTimeString() : '');
+const dataSource = computed(() => (isConnected.value ? "sensor" : "simulated"));
+const lastUpdate = computed(() =>
+  sensorData.lastUpdate
+    ? new Date(sensorData.lastUpdate).toLocaleTimeString()
+    : ""
+);
 
 // Computed property for status badge styling
 const getStatusBadgeClass = computed(() => {
   switch (connectionStatus.value) {
-    case 'connected':
-      return 'status-connected';
-    case 'connecting':
-      return 'status-connecting';
-    case 'error':
-    case 'failed':
-    case 'disconnected':
-      return 'status-disconnected';
+    case "connected":
+      return "status-connected";
+    case "connecting":
+      return "status-connecting";
+    case "error":
+    case "failed":
+    case "disconnected":
+      return "status-disconnected";
     default:
-      return 'status-disconnected';
+      return "status-disconnected";
   }
 });
 
 // Panel toggle functions
 const toggleStatusPanel = () => {
   statusMinimized.value = !statusMinimized.value;
-}
+};
 
 const toggleTablePanel = () => {
   tableMinimized.value = !tableMinimized.value;
-}
+};
 
 // Aircraft click handler
 const handleAircraftClick = (aircraftData) => {
-  console.log('Aircraft selected:', aircraftData);
+  console.log("Aircraft selected:", aircraftData);
   selectedAircraft.value = aircraftData;
-}
+};
 
 onMounted(() => {
-  console.log('🛰️ Aircraft Tracker initialized');
-  console.log(`📡 TCP Client ready for IoT sensor at ${tcpConfig.host}:${tcpConfig.port}`);
-  
+  console.log("🛰️ Aircraft Tracker initialized");
+  console.log(
+    `📡 TCP Client ready for IoT sensor at ${tcpConfig.host}:${tcpConfig.port}`
+  );
+
   // Auto-connect to TCP sensor on page load
-  console.log('🔄 Auto-connecting to TCP sensor...');
+  console.log("🔄 Auto-connecting to TCP sensor...");
   connect();
 });
 </script>
@@ -288,7 +310,8 @@ onMounted(() => {
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -324,7 +347,7 @@ onMounted(() => {
     width: min(350px, calc(100vw - 20px));
     max-width: calc(100vw - 20px);
   }
-  
+
   .floating-panels {
     right: 10px !important;
     left: auto !important;
@@ -333,11 +356,11 @@ onMounted(() => {
     max-width: min(400px, calc(100vw - 20px));
     min-width: min(300px, calc(100vw - 20px));
   }
-  
+
   .floating-panel {
     margin: 0 0 10px 0;
   }
-  
+
   .panel-content.expanded {
     max-height: min(500px, calc(100vh - 130px));
     padding: 8px;
@@ -352,7 +375,7 @@ onMounted(() => {
     max-width: calc(100vw - 10px);
     top: 5px !important;
   }
-  
+
   .floating-panels {
     top: 350px !important;
     right: 5px !important;
@@ -362,7 +385,7 @@ onMounted(() => {
     min-width: calc(100vw - 10px);
     width: calc(100vw - 10px);
   }
-  
+
   .panel-content.expanded {
     padding: 8px;
     max-height: min(400px, calc(100vh - 140px));
@@ -377,7 +400,7 @@ onMounted(() => {
     left: 3px !important;
     top: 3px !important;
   }
-  
+
   .floating-panels {
     width: calc(100vw - 6px);
     max-width: calc(100vw - 6px);
@@ -386,7 +409,7 @@ onMounted(() => {
     right: 3px !important;
     top: 320px !important;
   }
-  
+
   .panel-content.expanded {
     max-height: min(300px, calc(100vh - 160px));
     padding: 6px;
@@ -399,7 +422,7 @@ onMounted(() => {
     width: min(300px, calc(50vw - 15px));
     max-width: calc(50vw - 15px);
   }
-  
+
   .floating-panels {
     left: auto !important;
     right: 10px !important;
@@ -408,7 +431,7 @@ onMounted(() => {
     max-width: calc(50vw - 15px);
     min-width: min(250px, calc(50vw - 15px));
   }
-  
+
   .panel-content.expanded {
     max-height: calc(100vh - 180px);
   }

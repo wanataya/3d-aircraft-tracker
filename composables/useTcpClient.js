@@ -11,7 +11,13 @@ export const useTcpClient = () => {
   const sensorData = reactive({
     aircraft: [],
     lastUpdate: null,
-    rawData: ''
+    rawData: '',
+    altitudeRange: {
+      min: null,
+      max: null,
+      withAltitude: 0,
+      total: 0
+    }
   })
 
   let ws = null
@@ -55,6 +61,9 @@ export const useTcpClient = () => {
               if (proxyMessage.type === 'aircraft-data') {
                 // Handle enhanced proxy aircraft data format
                 handleEnhancedAircraftData(proxyMessage.data)
+              } else if (proxyMessage.type === 'aircraft-update') {
+                // Handle bulk aircraft updates with altitude range info
+                handleAircraftUpdate(proxyMessage)
               } else if (proxyMessage.type === 'connection') {
                 console.log('Enhanced Proxy:', proxyMessage.message)
                 if (proxyMessage.status === 'connected') {
@@ -107,6 +116,31 @@ export const useTcpClient = () => {
       console.error('Connection error:', error)
       connectionStatus.value = 'error'
       console.log('⏳ Only real TCP data will be displayed - no simulation')
+    }
+  }
+
+  // Handle bulk aircraft updates from enhanced proxy
+  const handleAircraftUpdate = (updateMessage) => {
+    try {
+      if (updateMessage.aircraft && Array.isArray(updateMessage.aircraft)) {
+        // Update the aircraft list with the sorted, filtered data from the proxy
+        sensorData.aircraft = updateMessage.aircraft
+        sensorData.lastUpdate = new Date()
+        
+        // Update altitude range information
+        if (updateMessage.altitudeRange) {
+          sensorData.altitudeRange = {
+            min: updateMessage.altitudeRange.min,
+            max: updateMessage.altitudeRange.max,
+            withAltitude: updateMessage.altitudeRange.withAltitude,
+            total: updateMessage.altitudeRange.total
+          }
+        }
+        
+        console.log(`📊 Aircraft update: ${updateMessage.count} aircraft, range: ${sensorData.altitudeRange.min}ft-${sensorData.altitudeRange.max}ft`)
+      }
+    } catch (error) {
+      console.error('Error handling aircraft update:', error)
     }
   }
 

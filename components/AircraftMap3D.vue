@@ -32,7 +32,7 @@ const props = defineProps({
 });
 
 // Emits
-const _emit = defineEmits(['aircraft-clicked']);
+const emit = defineEmits(['aircraft-clicked']);
 
 const cesiumContainer = ref(null);
 const mapLoaded = ref(false);
@@ -115,15 +115,15 @@ const createSampleAircraft = async () => {
   // First priority: Use aircraft prop data (from parent component)
   if (props.aircraft && props.aircraft.length > 0) {
     aircraftData = props.aircraft.map(sensorAircraft => ({
-      id: sensorAircraft.icao || sensorAircraft.id,
-      name: sensorAircraft.callsign || sensorAircraft.icao,
+      id: sensorAircraft.hexIdent || sensorAircraft.icao || sensorAircraft.id,
+      name: sensorAircraft.callsign || sensorAircraft.hexIdent,
       position: { 
         lng: sensorAircraft.longitude, 
         lat: sensorAircraft.latitude, 
         alt: sensorAircraft.altitude || 35000 
       },
-      speed: sensorAircraft.speed || 450,
-      heading: sensorAircraft.heading || 0,
+      speed: sensorAircraft.groundSpeed || sensorAircraft.speed || 450,
+      heading: sensorAircraft.track || sensorAircraft.heading || 0,
       airline: getAirlineFromCallsign(sensorAircraft.callsign),
       dataSource: 'IoT Sensor (Live)'
     }));
@@ -133,15 +133,15 @@ const createSampleAircraft = async () => {
   else if (sensorData.aircraft && sensorData.aircraft.length > 0) {
     // Use real sensor data from TCP client
     aircraftData = sensorData.aircraft.map(sensorAircraft => ({
-      id: sensorAircraft.icao || sensorAircraft.id,
-      name: sensorAircraft.callsign || sensorAircraft.icao,
+      id: sensorAircraft.hexIdent || sensorAircraft.icao || sensorAircraft.id,
+      name: sensorAircraft.callsign || sensorAircraft.hexIdent,
       position: { 
         lng: sensorAircraft.longitude, 
         lat: sensorAircraft.latitude, 
         alt: sensorAircraft.altitude || 35000 
       },
-      speed: sensorAircraft.speed || 450,
-      heading: sensorAircraft.heading || 0,
+      speed: sensorAircraft.groundSpeed || sensorAircraft.speed || 450,
+      heading: sensorAircraft.track || sensorAircraft.heading || 0,
       airline: getAirlineFromCallsign(sensorAircraft.callsign),
       dataSource: 'IoT Sensor (Direct)'
     }));
@@ -194,6 +194,7 @@ const createSampleAircraft = async () => {
       latitude: flight.position.lat,
       longitude: flight.position.lng,
       altitude: flight.position.alt,
+      groundSpeed: flight.speed,
       speed: flight.speed,
       track: flight.heading,
       heading: flight.heading,
@@ -224,7 +225,7 @@ const createSampleAircraft = async () => {
         rotation: Cesium.Math.toRadians(flight.heading)
       },
       label: {
-        text: flight.id,
+        text: flight.name || flight.id, // Use callsign (name) if available, fallback to hex ID
         font: '12pt sans-serif',
         pixelOffset: new Cesium.Cartesian2(0, -50),
         fillColor: Cesium.Color.WHITE,

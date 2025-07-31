@@ -16,6 +16,9 @@
     "dev:amqp": "concurrently \"npm run amqp-broker\" \"npm run amqp-publisher\" \"npm run amqp-proxy\" \"npm run dev\"",
     "lint": "eslint ."
   },
+    "dev:amqp": "concurrently \"npm run amqp-broker\" \"npm run amqp-proxy\" \"npm run dev\"",
+    "lint": "eslint ."
+  },
   "dependencies": {
     "dotenv": "^17.2.1",
     "nuxt": "^3.0.0",

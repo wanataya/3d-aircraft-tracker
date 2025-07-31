@@ -3,12 +3,15 @@
     <div class="table-header">
       <h3 class="text-white text-lg font-semibold mb-3">
         Detected Aircraft ({{ aircraft.length }})
+        <span v-if="altitudeRange.min != null" class="altitude-badge">
+          {{ altitudeRange.min }}ft - {{ altitudeRange.max }}ft
+        </span>
       </h3>
-      <!-- <div class="text-white text-sm mb-3">
-        Live Aircraft Tracking
-      </div> -->
+      <div class="text-white text-sm mb-3 altitude-info">
+        Live Aircraft Tracking • Sorted by altitude (lowest first)
+      </div>
     </div>
-    
+
     <div class="table-wrapper">
       <table class="aircraft-table">
         <thead>
@@ -27,12 +30,10 @@
         </thead>
         <tbody>
           <tr v-if="aircraft.length === 0">
-            <td colspan="10" class="no-data">
-              No aircraft detected yet...
-            </td>
+            <td colspan="10" class="no-data">No aircraft detected yet...</td>
           </tr>
-          <tr 
-            v-for="plane in sortedAircraft" 
+          <tr
+            v-for="plane in sortedAircraft"
             :key="plane.hexIdent"
             class="aircraft-row"
             :class="getRowClass(plane)"
@@ -59,9 +60,7 @@
               <span v-else class="no-data">—</span>
             </td>
             <td class="track">
-              <span v-if="plane.track !== null">
-                {{ plane.track }}°
-              </span>
+              <span v-if="plane.track !== null"> {{ plane.track }}° </span>
               <span v-else class="no-data">—</span>
             </td>
             <td class="position">
@@ -76,11 +75,17 @@
             </td>
             <td class="status">
               <div class="status-indicators">
-                <span v-if="plane.emergency" class="status-badge emergency">EMG</span>
+                <span v-if="plane.emergency" class="status-badge emergency"
+                  >EMG</span
+                >
                 <span v-if="plane.alert" class="status-badge alert">ALT</span>
                 <span v-if="plane.spi" class="status-badge spi">SPI</span>
-                <span v-if="plane.isOnGround" class="status-badge ground">GND</span>
-                <span v-if="!hasAnyStatus(plane)" class="status-badge normal">OK</span>
+                <span v-if="plane.isOnGround" class="status-badge ground"
+                  >GND</span
+                >
+                <span v-if="!hasAnyStatus(plane)" class="status-badge normal"
+                  >OK</span
+                >
               </div>
             </td>
             <td class="last-seen">
@@ -90,7 +95,7 @@
         </tbody>
       </table>
     </div>
-    
+
     <!-- <div class="table-footer">
       <div class="text-white text-xs opacity-75">
         Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -100,60 +105,70 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
+import { computed } from "vue";
 
 const props = defineProps({
   aircraft: {
     type: Array,
-    default: () => []
-  }
-})
+    default: () => [],
+  },
+  altitudeRange: {
+    type: Object,
+    default: () => ({ min: null, max: null, withAltitude: 0, total: 0 }),
+  },
+});
 
-// Sort aircraft by last seen (most recent first)
+// Sort aircraft by altitude (lowest first, no altitude data last)
 const sortedAircraft = computed(() => {
-  return [...props.aircraft].sort((a, b) => 
-    new Date(b.lastSeen) - new Date(a.lastSeen)
-  )
-})
+  return [...props.aircraft].sort((a, b) => {
+    // Handle null/undefined altitudes
+    if (a.altitude == null && b.altitude == null) return 0;
+    if (a.altitude == null) return 1; // null goes to end
+    if (b.altitude == null) return -1; // null goes to end
+
+    // Sort by altitude (ascending - lowest first)
+    return a.altitude - b.altitude;
+  });
+});
 
 // Format altitude with commas
 const formatAltitude = (altitude) => {
-  return altitude.toLocaleString() + ' ft'
-}
+  return altitude.toLocaleString() + " ft";
+};
 
 // Format position coordinates
 const formatPosition = (lat, lon) => {
-  return `${lat.toFixed(4)}, ${lon.toFixed(4)}`
-}
+  return `${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+};
 
 // Format last seen time
 const formatLastSeen = (timestamp) => {
-  const now = new Date()
-  const lastSeen = new Date(timestamp)
-  const diffMs = now - lastSeen
-  const diffSec = Math.floor(diffMs / 1000)
-  
+  const now = new Date();
+  const lastSeen = new Date(timestamp);
+  const diffMs = now - lastSeen;
+  const diffSec = Math.floor(diffMs / 1000);
+
   if (diffSec < 60) {
-    return `${diffSec}s ago`
+    return `${diffSec}s ago`;
   } else if (diffSec < 3600) {
-    return `${Math.floor(diffSec / 60)}m ago`
+    return `${Math.floor(diffSec / 60)}m ago`;
   } else {
-    return lastSeen.toLocaleTimeString()
+    return lastSeen.toLocaleTimeString();
   }
-}
+};
 
 // Check if aircraft has any status flags
 const hasAnyStatus = (plane) => {
-  return plane.emergency || plane.alert || plane.spi || plane.isOnGround
-}
+  return plane.emergency || plane.alert || plane.spi || plane.isOnGround;
+};
 
 // Get row class based on aircraft status
 const getRowClass = (plane) => {
-  if (plane.emergency) return 'emergency-row'
-  if (plane.alert) return 'alert-row'
-  if (plane.isOnGround) return 'ground-row'
-  return ''
-}
+  if (plane.emergency) return "emergency-row";
+  if (plane.alert) return "alert-row";
+  if (plane.isOnGround) return "ground-row";
+  return "";
+};
 </script>
 
 <style scoped>
@@ -180,6 +195,28 @@ const getRowClass = (plane) => {
   align-items: center;
   gap: 0.5rem;
   margin-top: 0;
+  flex-wrap: wrap;
+}
+
+.altitude-badge {
+  background: linear-gradient(45deg, #3b82f6, #1d4ed8);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 8px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  transition: all 0.3s ease;
+  border: 1px solid;
+  border-color: #3b82f6;
+}
+
+.altitude-info {
+  color: #9ca3af;
+  font-size: 0.875rem;
+  margin: 0;
+  opacity: 0.9;
+  font-weight: 400;
 }
 
 .table-header h3::before {
@@ -201,7 +238,7 @@ const getRowClass = (plane) => {
   min-height: 300px;
   border-radius: 6px;
   border: 1px solid #374151;
-  
+
   /* Custom mini scrollbar */
   scrollbar-width: thin;
   scrollbar-color: #4b5563 #1f2937;
@@ -287,7 +324,7 @@ const getRowClass = (plane) => {
   background: #374151;
   padding: 0.25rem 0.5rem;
   border-radius: 4px;
-  font-family: 'Courier New', monospace;
+  font-family: "Courier New", monospace;
   font-size: 0.75rem;
   color: #93c5fd;
 }
@@ -352,12 +389,12 @@ const getRowClass = (plane) => {
   .aircraft-table {
     font-size: 0.75rem;
   }
-  
+
   .aircraft-table th,
   .aircraft-table td {
     padding: 0.375rem 0.25rem;
   }
-  
+
   .table-wrapper {
     max-height: calc(100vh - 200px);
     min-height: 280px;
@@ -369,16 +406,16 @@ const getRowClass = (plane) => {
     max-height: calc(100vh - 160px);
     min-height: 220px;
   }
-  
+
   .aircraft-table {
     font-size: 0.7rem;
   }
-  
+
   .aircraft-table th,
   .aircraft-table td {
     padding: 0.25rem 0.125rem;
   }
-  
+
   /* Smaller scrollbar for mobile */
   .table-wrapper::-webkit-scrollbar {
     width: 6px;

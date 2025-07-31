@@ -15,7 +15,7 @@ dotenv.config();
  */
 
 
-const BROKER_PORT = process.env.AMQP_BROKER_PORT || 5672;
+const BROKER_PORT = process.env.AMQP_BROKER_PORT || 5673;
 
 console.log('🚀 Starting Simple AMQP Broker...');
 
